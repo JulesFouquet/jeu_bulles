@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion
+{% endblock %}
+
+{% block body %}
+
+	<div id="bubble-background"></div>
+
+	<div class="form-container">
+		<div class="form-box">
+			<h2>Connexion</h2>
+
+			{% if error %}
+				<div class="error">{{ error.messageKey|trans(error.messageData,'security') }}</div>
+			{% endif %}
+
+			<form method="post" action="{{ path('login') }}" data-turbo="false">
+				<label>Pseudo :
+					<input type="text" name="username" value="{{ last_username }}" required>
+				</label><br><br>
+
+				<label>Mot de passe :
+					<input type="password" name="password" required>
+				</label><br><br>
+
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+				<button type="submit">Se connecter</button>
+			</form>
+
+			<a href="{{ path('app_register') }}">S’inscrire</a>
+		</div>
+	</div>
+
+{% endblock %}

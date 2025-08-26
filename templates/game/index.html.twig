@@ -1,0 +1,36 @@
+{% block title %}Jeu Bulle
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+{% endblock %}
+
+{% block body %}
+	<h3>0</h3>
+	<button id="restart-btn">Rejouer</button>
+
+	<div id="game-container" style="display: flex; gap: 20px;">
+		<div id="game-zone" style="flex: 1; position: relative;">
+			<div id="lives"></div>
+		</div>
+
+		<div id="leaderboard" style="width: 250px;">
+			<h3>Classement</h3>
+			<ol id="score-list"></ol>
+		</div>
+	</div>
+
+	<div id="game-over" style="display: none;">
+		<div id="game-over-content">
+			<h2>Game Over</h2>
+			<p id="final-score">Score: 0</p>
+			<p id="final-missclicks">Miss clicks: 0</p>
+			<button id="ok-btn">OK</button>
+			<button id="replay-btn">Rejouer</button>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	<script src="{{ asset('js/main.js') }}"></script>
+{% endblock %}
