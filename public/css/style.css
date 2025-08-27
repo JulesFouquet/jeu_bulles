@@ -1,3 +1,7 @@
+/* --- Fonts --- */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Poppins:wght@400;500;600&display=swap");
+
+/* --- Body général --- */
 body {
     overflow: hidden;
     min-height: 100vh;
@@ -5,67 +9,183 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #9c9c9c;
+    justify-content: flex-start;
+    background: linear-gradient(135deg, #1f1c2c, #928dab);
+    margin: 0;
+    padding: 2rem 0;
+    font-family: "Poppins", sans-serif;
 }
 
+/* --- Titre du jeu "logo" --- */
+h1 {
+    font-family: "Press Start 2P", cursive;
+    font-size: 3rem;
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+
+    /* Propriétés pour le texte en dégradé */
+    background-clip: text; /* standard */
+    -webkit-background-clip: text; /* Chrome, Safari */
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+    margin-bottom: 0.5rem;
+}
+
+/* --- Game zone --- */
 #game-zone {
     position: relative;
-    width: 800px; /* largeur fixe du cadre */
-    height: 600px; /* hauteur fixe */
-    background: #f0f0f0;
+    width: 800px;
+    height: 600px;
+    background: #fefefe;
     overflow: hidden;
-    border: 4px solid #402f80; /* contour visible pour le cadre */
-    border-radius: 10px; /* coins arrondis */
-    margin: 2rem auto; /* centré horizontalement */
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    border: 4px solid #402f80;
+    border-radius: 16px;
+    margin: 1rem auto;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05),
+        0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* --- Bulles --- */
 .bubble {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 166, 0, 1);
-    opacity: 0;
-    animation: anim 8s forwards ease-in-out;
+    background: radial-gradient(circle, #ff9f43, #ff6b6b);
+    pointer-events: auto;
+    width: 50px;
+    height: 50px;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-@keyframes anim {
-    to {
-        top: -250px;
-        left: var(--left);
-        opacity: 1;
-        filter: hue-rotate(720deg);
-    }
+.bubble:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
-h3 {
-    font-size: 5rem;
-    color: #402f80;
-    margin: 1rem;
+/* --- Score et pseudo --- */
+h3#score-display {
+    font-size: 4rem;
+    color: #ffd700;
+    margin: 0.5rem;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
 }
-#restart-btn {
+
+h3#player-pseudo {
+    font-size: 2rem;
+    color: #fff;
     margin-bottom: 1rem;
-    padding: 0.5rem 1rem;
-    font-size: 1.2rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
 }
 
+/* --- Meilleur score --- */
+#player-best-score {
+    margin-bottom: 0.8rem;
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 600;
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Boutons jouer / replay --- */
+#play-btn,
+#replay-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff5722, #ff9800);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#play-btn:hover,
+#replay-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Vies --- */
 #lives {
     position: absolute;
     top: 10px;
     right: 10px;
     font-size: 2rem;
     color: red;
-}
-.hidden {
-    display: none;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
 }
 
+/* --- Leaderboard --- */
+#leaderboard {
+    width: 320px;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#leaderboard h3 {
+    margin-bottom: 0.5rem;
+    color: #402f80;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+#score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+#score-table th,
+#score-table td {
+    padding: 0.6rem;
+    text-align: center;
+}
+
+/* --- Top 3 couleurs --- */
+#score-table tbody tr.top1 {
+    background-color: rgba(255, 217, 0, 0.664) !important; /* or clair */
+    font-weight: bold;
+}
+#score-table tbody tr.top2 {
+    background-color: rgba(192, 192, 192, 0.658) !important; /* argent clair */
+    font-weight: bold;
+}
+#score-table tbody tr.top3 {
+    background-color: rgba(205, 128, 50, 0.685) !important; /* bronze clair */
+    font-weight: bold;
+}
+
+/* --- Lignes impaires pour les autres scores --- */
+#score-table tbody tr:not(.top1):not(.top2):not(.top3):nth-child(odd) {
+    background-color: rgba(64, 47, 128, 0.05);
+}
+
+/* --- Joueur actuel --- */
+#score-table tbody tr.current-player {
+    background-color: rgba(64, 47, 128, 0.2);
+    font-weight: bold;
+}
+
+/* --- Modal Game Over --- */
 #game-over {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -74,14 +194,37 @@ h3 {
 
 #game-over-content {
     background: #fff;
-    padding: 2rem;
-    border-radius: 10px;
+    padding: 2rem 3rem;
+    border-radius: 16px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.35);
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 #game-over-content button {
     margin: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     font-size: 1rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff5722, #ff9800);
+    color: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#game-over-content button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }

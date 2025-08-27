@@ -1,204 +1,189 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // ------------------- Auth -------------------
-    const pseudoInput = document.getElementById('pseudo');
-    const passwordInput = document.getElementById('password');
-    const authMessage = document.getElementById('auth-message');
-    const API_URL = 'http://localhost:3000'; // API bulle-api
-
-    const showMessage = (msg, success = true) => {
-        if (!authMessage) return;
-        authMessage.textContent = msg;
-        authMessage.style.color = success ? 'green' : 'red';
-    };
-
-    const registerBtn = document.getElementById('register-btn');
-    if (registerBtn) {
-        registerBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const pseudo = pseudoInput.value.trim();
-            const password = passwordInput.value.trim();
-            if (!pseudo || !password) { showMessage('Pseudo et mot de passe requis', false); return; }
-            try {
-                const res = await fetch(`${API_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pseudo, password }),
-                });
-                const data = await res.json();
-                showMessage(res.ok ? data.message : (data.message || 'Erreur inscription'), res.ok);
-            } catch (err) {
-                showMessage('Erreur serveur', false);
-                console.error(err);
-            }
-        });
-    }
-
-    const loginBtn = document.getElementById('login-btn');
-    if (loginBtn) {
-        loginBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const pseudo = pseudoInput.value.trim();
-            const password = passwordInput.value.trim();
-            if (!pseudo || !password) { showMessage('Pseudo et mot de passe requis', false); return; }
-            try {
-                const res = await fetch(`${API_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pseudo, password }),
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showMessage('Connexion réussie ✅');
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('pseudo', pseudo);
-                    window.location.href = 'index.html';
-                } else {
-                    showMessage(data.message || 'Erreur connexion', false);
-                }
-            } catch (err) {
-                showMessage('Erreur serveur', false);
-                console.error(err);
-            }
-        });
-    }
-
-    // ------------------- Jeu -------------------
-    const counterDisplay = document.querySelector("h3");
+    const counterDisplay = document.querySelector("h3#score-display");
     const livesDisplay = document.getElementById("lives");
     const gameZone = document.getElementById("game-zone");
     const restartBtn = document.getElementById("restart-btn");
-    const leaderboardList = document.getElementById("score-list");
-
-    let counter = 0;
-    let missClicks = 0;
-    let lives = 3;
-    let intervalId;
-    let spawnDelay = 3000; 
-    let playerPseudo = "";
-
-    function askPseudo() {
-        playerPseudo = prompt("Entrez votre pseudo :", "Player") || "Player";
-    }
-
-    const updateLivesDisplay = () => {
-        const safeLives = Math.max(0, lives);
-        livesDisplay.innerHTML = "❤️".repeat(safeLives);
-    };
-
-    const updateLives = () => {
-        lives = Math.max(0, lives);
-        updateLivesDisplay();
-        if (lives <= 0) {
-            stopGame();
-            showGameOver();
-        }
-    };
-
+    const leaderboardTable = document.querySelector("#score-table tbody");
     const gameOverModal = document.getElementById("game-over");
     const finalScore = document.getElementById("final-score");
     const finalMissclicks = document.getElementById("final-missclicks");
     const okBtn = document.getElementById("ok-btn");
     const replayBtn = document.getElementById("replay-btn");
+    const playBtn = document.getElementById("play-btn");
 
-    const showGameOver = () => {
+    let counter = 0;
+    let missClicks = 0;
+    let lives = 3;
+    let intervalId;
+    let spawnDelay = 2000;
+    let scoreSent = false;
+    const playerPseudo = document.querySelector("h3#player-pseudo").textContent;
+
+    // --- Vies ---
+    function updateLives() {
+        livesDisplay.innerHTML = "❤️".repeat(Math.max(0, lives));
+        if (lives <= 0) stopGame();
+    }
+
+    // --- Game Over ---
+    async function showGameOver() {
         finalScore.textContent = `Score: ${counter}`;
         finalMissclicks.textContent = `Miss clicks: ${missClicks}`;
         gameOverModal.style.display = "flex";
-        updateLeaderboard(counter);
-    };
+
+        if (!scoreSent) {
+            scoreSent = true;
+            try {
+                await fetch('/jeu/score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ score: counter, missClicks: missClicks })
+                });
+                await updateLeaderboard();
+            } catch(err) {
+                console.error("Erreur envoi score :", err);
+            }
+        }
+    }
 
     okBtn?.addEventListener("click", () => { gameOverModal.style.display = "none"; });
-    replayBtn?.addEventListener("click", () => { gameOverModal.style.display = "none"; startGame(); });
+    replayBtn?.addEventListener("click", () => { 
+        gameOverModal.style.display = "none"; 
+        startGame(); 
+    });
 
-    const bubbleMaker = () => {
+    // --- Bulles ---
+    function bubbleMaker() {
         const bubble = document.createElement("span");
         bubble.classList.add("bubble");
         gameZone.appendChild(bubble);
 
-        const size = Math.random() * 100 + 50 + "px";
-        bubble.style.height = size;
-        bubble.style.width = size;
+        const size = Math.random() * 60 + 40;
+        bubble.style.width = size + "px";
+        bubble.style.height = size + "px";
 
-        const maxTop = gameZone.clientHeight - parseInt(size) - 20;
-        const maxLeft = gameZone.clientWidth - parseInt(size) - 20;
-        bubble.style.top = Math.random() * maxTop + "px";
-        bubble.style.left = Math.random() * maxLeft + "px";
+        let x, y;
+        const side = Math.floor(Math.random() * 4);
+        if (side === 0) { x = Math.random() * (gameZone.clientWidth - size); y = 0; }
+        else if (side === 1) { x = gameZone.clientWidth - size; y = Math.random() * (gameZone.clientHeight - size); }
+        else if (side === 2) { x = Math.random() * (gameZone.clientWidth - size); y = gameZone.clientHeight - size; }
+        else { x = 0; y = Math.random() * (gameZone.clientHeight - size); }
+
+        const targetX = gameZone.clientWidth / 2 - size / 2;
+        const targetY = gameZone.clientHeight / 2 - size / 2;
+        const angle = Math.atan2(targetY - y, targetX - x);
+        const speed = 1 + Math.random() * 2;
+
+        bubble.style.left = x + "px";
+        bubble.style.top = y + "px";
 
         let lifeLost = false;
 
         bubble.addEventListener("click", (e) => {
+            e.stopPropagation();
             counter++;
             counterDisplay.textContent = counter;
+            lifeLost = true;
             bubble.remove();
-            e.stopPropagation();
         });
 
-        const checkOutOfBounds = setInterval(() => {
-            const bubbleRect = bubble.getBoundingClientRect();
+        function move() {
+            x += Math.cos(angle) * speed;
+            y += Math.sin(angle) * speed;
+            bubble.style.left = x + "px";
+            bubble.style.top = y + "px";
+
+            const bRect = bubble.getBoundingClientRect();
             const zoneRect = gameZone.getBoundingClientRect();
+
             if (!lifeLost &&
-                (bubbleRect.top < zoneRect.top ||
-                 bubbleRect.left < zoneRect.left ||
-                 bubbleRect.bottom > zoneRect.bottom ||
-                 bubbleRect.right > zoneRect.right)) {
+                (bRect.top < zoneRect.top ||
+                 bRect.left < zoneRect.left ||
+                 bRect.bottom > zoneRect.bottom ||
+                 bRect.right > zoneRect.right)) {
                 lifeLost = true;
-                lives = Math.max(0, lives - 1);
+                lives--;
                 updateLives();
                 bubble.remove();
-                clearInterval(checkOutOfBounds);
+            } else if (!lifeLost) {
+                requestAnimationFrame(move);
             }
-        }, 50);
-    };
+        }
 
-    const spawnBubbles = () => {
+        requestAnimationFrame(move);
+    }
+
+    // --- Spawn ---
+    function spawnBubbles() {
         bubbleMaker();
-        spawnDelay = Math.max(500, spawnDelay * 0.95);
+        spawnDelay = Math.max(700, spawnDelay * 0.98);
         intervalId = setTimeout(spawnBubbles, spawnDelay);
-    };
+    }
 
-    const startGame = () => {
+    // --- Démarrage / arrêt ---
+    function startGame() {
         counter = 0;
         missClicks = 0;
         lives = 3;
         counterDisplay.textContent = counter;
-        spawnDelay = 3000;
-        updateLivesDisplay();
+        updateLives();
+        scoreSent = false;
         spawnBubbles();
-    };
+    }
 
-    const stopGame = () => {
+    function stopGame() {
         clearTimeout(intervalId);
         document.querySelectorAll(".bubble").forEach(b => b.remove());
-    };
+        showGameOver();
+    }
 
-    gameZone?.addEventListener("click", (e) => {
+    // --- clics manqués ---
+    gameZone.addEventListener("click", (e) => {
         if (!e.target.classList.contains("bubble")) { missClicks++; }
     });
 
     restartBtn?.addEventListener("click", () => { stopGame(); startGame(); });
 
-    async function updateLeaderboard(score) {
-        try {
-            await fetch("http://localhost:3000/score", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ pseudo: playerPseudo, score }),
-            });
+    playBtn?.addEventListener("click", () => {
+        startGame();
+        playBtn.style.display = "none";
+    });
 
-            const response = await fetch("http://localhost:3000/score");
-            const data = await response.json();
+   // --- Leaderboard ---
+async function updateLeaderboard() {
+    try {
+        const res = await fetch('/jeu/scores');
+        const data = await res.json();
 
-            leaderboardList.innerHTML = "";
-            data.forEach((entry) => {
-                const li = document.createElement("li");
-                li.textContent = `${entry.pseudo} - ${entry.score}`;
-                leaderboardList.appendChild(li);
-            });
-        } catch (err) { console.error("Erreur leaderboard :", err); }
+        // Tri par score, puis par missClicks si scores égaux
+        data.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.missClicks - b.missClicks;
+        });
+
+        leaderboardTable.innerHTML = '';
+
+        data.forEach((entry, index) => {
+            if (index >= 10) return;
+
+            const tr = document.createElement("tr");
+
+            if (index === 0) tr.classList.add("top1");
+            else if (index === 1) tr.classList.add("top2");
+            else if (index === 2) tr.classList.add("top3");
+
+            if (entry.pseudo === playerPseudo) tr.classList.add("current-player");
+
+            tr.innerHTML = `<td>${entry.pseudo}</td><td>${entry.score}</td><td>${entry.missClicks}</td>`;
+            leaderboardTable.appendChild(tr);
+        });
+
+    } catch(err) {
+        console.error("Erreur leaderboard :", err);
     }
+}
 
-    // ------------------- Démarrage -------------------
-    askPseudo();
-    startGame();
+
+    // --- Initialisation du leaderboard dès le chargement ---
+    updateLeaderboard();
 });

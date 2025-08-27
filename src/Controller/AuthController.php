@@ -11,13 +11,28 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
 
 class AuthController extends AbstractController
 {
     #[Route('/', name:'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $em): Response
-    {
+    public function register(
+        Request $request, 
+        UserPasswordHasherInterface $hasher, 
+        EntityManagerInterface $em,
+        CsrfTokenManagerInterface $csrfTokenManager
+    ): Response {
+        $csrfToken = $csrfTokenManager->getToken('register_form')->getValue();
+
         if ($request->isMethod('POST')) {
+            $submittedToken = $request->request->get('_csrf_token');
+
+            // Vérification du token CSRF
+            if (!$csrfTokenManager->isTokenValid(new CsrfToken('register_form', $submittedToken))) {
+                throw $this->createAccessDeniedException('Invalid CSRF token.');
+            }
+
             $pseudo = $request->request->get('pseudo');
             $password = $request->request->get('password');
 
@@ -30,12 +45,14 @@ class AuthController extends AbstractController
                 $em->persist($user);
                 $em->flush();
 
-                // 🔹 Redirect après POST pour Turbo
+                // Redirect après inscription
                 return $this->redirectToRoute('login');
             }
         }
 
-        return $this->render('auth/register.html.twig');
+        return $this->render('auth/register.html.twig', [
+            'csrf_token' => $csrfToken
+        ]);
     }
 
     #[Route('/login', name:'login')]

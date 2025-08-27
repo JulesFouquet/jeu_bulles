@@ -11,6 +11,35 @@ body {
     justify-content: center;
 }
 
+/* -------------------- Conteneur global centré verticalement -------------------- */
+.form-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* centre verticalement */
+    min-height: 100vh;
+    gap: 2rem; /* espace entre logo et formulaire */
+}
+
+/* -------------------- Logo JEU BULLE (style arcade, sur une ligne) -------------------- */
+.logo {
+    display: flex;
+    justify-content: center;
+}
+
+.logo h1 {
+    font-family: "Press Start 2P", cursive;
+    font-size: 4rem; /* légèrement agrandi pour plus d'impact */
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+    background-clip: text; /* standard */
+    -webkit-background-clip: text; /* Chrome/Safari */
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+    margin: 0;
+    white-space: nowrap; /* empêche le texte de passer à la ligne */
+}
+
 /* -------------------- Bulles flottantes -------------------- */
 #bubble-background {
     position: fixed;

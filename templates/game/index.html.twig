@@ -1,22 +1,55 @@
-{% block title %}Jeu Bulle
-{% endblock %}
+{% block title %}{% endblock %}
 
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ asset('css/style.css') }}">
 {% endblock %}
 
 {% block body %}
-	<h3>0</h3>
-	<button id="restart-btn">Rejouer</button>
+	<h1>Jeu Bulle</h1>
+	<h3 id="score-display">0</h3>
+	<h3 id="player-pseudo">{{ pseudo }}</h3>
+	<button id="play-btn">Jouer</button>
 
 	<div id="game-container" style="display: flex; gap: 20px;">
-		<div id="game-zone" style="flex: 1; position: relative;">
+		<div id="game-zone">
 			<div id="lives"></div>
 		</div>
 
-		<div id="leaderboard" style="width: 250px;">
-			<h3>Classement</h3>
-			<ol id="score-list"></ol>
+		<div id="leaderboard">
+			<div id="player-best-score" style="margin-bottom: 1rem; font-size: 1.2rem; color: #402f80;">
+				{% if bestScore is defined %}
+					Meilleur Score :
+					{{ bestScore }}
+				{% else %}
+					Vous n'avez pas encore de score
+				{% endif %}
+			</div>
+			<h3>TOP 10</h3>
+			<table id="score-table">
+				<thead>
+					<tr>
+						<th>Joueur</th>
+						<th>Score</th>
+						<th>Fails</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for score in scores|slice(0, 10) %}
+						<tr class="
+																																                            {% if loop.index0 == 0 %}top1{% elseif loop.index0 == 1 %}top2{% elseif loop.index0 == 2 %}top3{% endif %}
+																																                            {% if score.player.pseudo == pseudo %} current-player{% endif %}
+																																                        ">
+							<td>{{ score.player.pseudo }}</td>
+							<td>{{ score.score }}</td>
+							<td>{{ score.missClicks }}</td>
+						</tr>
+					{% else %}
+						<tr>
+							<td colspan="3">Aucun score pour le moment</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
 		</div>
 	</div>
 
@@ -24,8 +57,7 @@
 		<div id="game-over-content">
 			<h2>Game Over</h2>
 			<p id="final-score">Score: 0</p>
-			<p id="final-missclicks">Miss clicks: 0</p>
-			<button id="ok-btn">OK</button>
+			<p id="final-missclicks">Fails: 0</p>
 			<button id="replay-btn">Rejouer</button>
 		</div>
 	</div>

@@ -8,21 +8,29 @@
 	<div id="bubble-background"></div>
 
 	<div class="form-container">
-		<div class="form-box">
-			<h2>Inscription</h2>
-			<form method="post" action="{{ path('app_register') }}" data-turbo="false">
-				<label>Pseudo :
-					<input type="text" name="pseudo" required>
-				</label><br><br>
+		<div class="form-content">
+			<div class="logo">
+				<h1 class="logo-text">JEU BULLE</h1>
+			</div>
 
-				<label>Mot de passe :
-					<input type="password" name="password" required>
-				</label><br><br>
+			<div class="form-box">
+				<h2>Inscription</h2>
+				<form method="post" action="{{ path('app_register') }}" data-turbo="false">
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
 
-				<button type="submit">S’inscrire</button>
-			</form>
+					<label>Pseudo :
+						<input type="text" name="pseudo" required>
+					</label><br><br>
 
-			<a href="{{ path('login') }}">Se connecter</a>
+					<label>Mot de passe :
+						<input type="password" name="password" required>
+					</label><br><br>
+
+					<button type="submit">S’inscrire</button>
+				</form>
+
+				<a href="{{ path('login') }}">Se connecter</a>
+			</div>
 		</div>
 	</div>
 

@@ -8,28 +8,34 @@
 	<div id="bubble-background"></div>
 
 	<div class="form-container">
-		<div class="form-box">
-			<h2>Connexion</h2>
+		<div class="form-content">
+			<div class="logo">
+				<h1 class="logo-text">JEU BULLE</h1>
+			</div>
 
-			{% if error %}
-				<div class="error">{{ error.messageKey|trans(error.messageData,'security') }}</div>
-			{% endif %}
+			<div class="form-box">
+				<h2>Connexion</h2>
 
-			<form method="post" action="{{ path('login') }}" data-turbo="false">
-				<label>Pseudo :
-					<input type="text" name="username" value="{{ last_username }}" required>
-				</label><br><br>
+				{% if error %}
+					<div class="error">{{ error.messageKey|trans(error.messageData,'security') }}</div>
+				{% endif %}
 
-				<label>Mot de passe :
-					<input type="password" name="password" required>
-				</label><br><br>
+				<form method="post" action="{{ path('login') }}" data-turbo="false">
+					<label>Pseudo :
+						<input type="text" name="username" value="{{ last_username }}" required>
+					</label><br><br>
 
-				<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+					<label>Mot de passe :
+						<input type="password" name="password" required>
+					</label><br><br>
 
-				<button type="submit">Se connecter</button>
-			</form>
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-			<a href="{{ path('app_register') }}">S’inscrire</a>
+					<button type="submit">Se connecter</button>
+				</form>
+
+				<a href="{{ path('app_register') }}">S’inscrire</a>
+			</div>
 		</div>
 	</div>
 
